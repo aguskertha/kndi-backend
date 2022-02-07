@@ -4,6 +4,10 @@ const jwt = require('jsonwebtoken');
 const validator = require('validator');
 const ObjectID = require('mongodb').ObjectID;
 
+const hello = (req, res) => {
+    res.json("hello");
+}
+
 const register = (req, res, next) => {
     bcrypt.hash(req.body.password, 10, (err, hashedPassword) => {
         if(err){
@@ -28,5 +32,6 @@ const register = (req, res, next) => {
 }
 
 module.exports = {
-    register
+    register,
+    hello
 }
