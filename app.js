@@ -5,6 +5,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const {swaggerDocs, swaggerUi} = require('./utils/docs');
+const router = require('./src/routes');
 require('dotenv').config();
 require('./utils/db');
 
@@ -20,8 +21,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
+const userRouter = require('./src/user/route');
+app.use('/api/auth', userRouter);
+
 app.get('/', (req,res) => {
     res.json('Hello World')
 })
+
+
 
 module.exports = app;
