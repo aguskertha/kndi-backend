@@ -16,7 +16,7 @@ services:
       - db_name=kndiDB
   service_db:
     container_name: service_db
-    image: mongo
+    image: mongo:4.4
     ports:
       - 27017:27017
     volumes:
