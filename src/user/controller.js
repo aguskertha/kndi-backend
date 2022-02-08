@@ -2,238 +2,154 @@ const User = require('./model');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const validator = require('validator');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectID = require('mongodb').ObjectId;
 
 const SECRET_KEY = process.env.SECRET_KEY;
 
-const hello = (req, res) => {
-    res.json("hello");
-}
-
-const register = (req, res, next) => {
-    bcrypt.hash(req.body.password, 10, (err, hashedPassword) => {
-        if(err){
-            res.json({message: 'Error: '+err});
-            return false;
+const register = async (req, res, next) => {
+    bcrypt.hash(req.body.password, 10, async (err, hashedPassword) => {
+        if (err) {
+            return res.json({ message: [err] });
         }
-        const email = req.body.email;
-        const password = hashedPassword;
-        const refreshToken = '';
-        const name = 'Admin';
-        if(!validator.isEmail(email)){
-            res.status(400).json({
-                message: 'Invalid email'
-            })
-            return false;
+        try {
+            const email = req.body.email;
+            const password = hashedPassword;
+            const refreshToken = '';
+            const name = 'Admin';
+            const newUser = new User({ name, email, password, refreshToken });
+            await newUser.save();
+            res.json({ message: 'User successfully added' });
         }
-        const newUser = new User({name,email,password, refreshToken});
-        newUser.save()
-            .then(()=> res.json({message: 'User successfully added'}))
-            .catch((err) => res.status(404).json({message: 'Error: '+err}));
+        catch (err) {
+            res.status(404).json({ message: [err] });
+        }
     });
 }
 
-const login = (req, res, next) => {
-    const email = req.body.email;
-    const password = req.body.password;
-
-    if(!validator.isEmail(email)){
-        return res.status(400).json({message: 'Bad request: Invalid email!'});  
+const login = async (req, res, next) => {
+    try {
+        const email = req.body.email;
+        const password = req.body.password;
+        const user = await User.findOne({ email });
+        const token = generateToken(user);
+        const refreshToken = jwt.sign({ userID: user._id }, SECRET_KEY);
+        const updatedUser = await User.updateOne(
+            { _id: ObjectID(user._id) },
+            {
+                $set: {
+                    refreshToken: refreshToken
+                }
+            }
+        );
+        res.json({ userID: user._id, message: 'Login successfully', token, refreshToken });
     }
-
-    User.findOne({email})
-        .then((user) => {
-            if(user){
-                bcrypt.compare(password, user.password, (err, result) => {
-                    if(err){
-                        return res.status(400).json({message: err});
-                    }
-                    if(result){
-                        const token = generateToken(user);
-                        const refreshToken = jwt.sign({userID: user._id}, SECRET_KEY);
-                        User.updateOne(
-                            {_id: ObjectID(user._id)},
-                            {
-                                $set: {
-                                    refreshToken: refreshToken
-                                }
-                            }
-                        )
-                        .then((result) => {
-                            res.json({userID: user._id, message: 'Login successfully', token, refreshToken});
-                        })
-                        .catch((err) => { return res.status(400).json({message: err})});
-                    }
-                    else{
-                        return res.status(400).json({message: 'Bad request: Password does not matched!'})
-                    }
-                })
-
-            }
-            else{
-                return res.status(404).json({ message: 'Not found: User not found!'})
-            }
-        })
-        .catch((err) => {
-           return res.status(400).json({message: err})
-        });
+    catch (err) {
+        res.status(400).json({ message: [err] })
+    }
 }
 
 const newToken = async (req, res, next) => {
-    const refreshToken = req.body.refreshToken;
-    const userID = req.body.userID;
-
-    if(refreshToken == ''){
-        return res.status(400).json({message: 'Bad request: Invalid refresh token!'});
-    }
-    const user = await User.findOne({_id: ObjectID(userID)});
-    if(!user){
-        return res.status(404).json({message: 'Not found: User not found!'});
-    }
-    if(user.refreshToken == ''){
-        return res.status(400).json({message: 'Bad request: You need login first!'});
-    }
-    if(refreshToken == user.refreshToken){
-        jwt.verify(refreshToken, SECRET_KEY, (err, result) => {
-            if(err){
-                return res.status(400).json({message: err});
-            }
+    try{
+        const refreshToken = req.body.refreshToken;
+        const userID = req.body.userID;
+        const user = await User.findOne({_id: ObjectID(userID)});
+        const isValidRefreshToken = jwt.verify(refreshToken, SECRET_KEY);
+        if(isValidRefreshToken){
             const token = generateToken(user);
-            res.json({token});
-        });
+            res.json({ token });
+        }
     }
-    else{
-        return res.status(400).json({message: 'Bad request: Invalid refresh token!'});
+    catch(err){
+        res.status(400).json({message: [err]})
     }
 }
 
 const generateToken = (user) => {
-    return jwt.sign({userID: user._id}, SECRET_KEY, {expiresIn: '20s'});
+    return jwt.sign({ userID: user._id }, SECRET_KEY, { expiresIn: '20s' });
 }
 
-const resetPassword = async (req,res,next) => {
+const resetPassword = async (req, res, next) => {
     const userID = req.body.userID;
     const newPassword = req.body.newPassword;
-    if(userID.length !== 24){
-        return res.status(400).json({message: 'Bad request: Invalid user ID, length must be 24 character!'});
-    }
-    const user = await User.findOne({_id: ObjectID(userID)});
-    if(!user){
-        return res.status(404).json({message: 'Not found: user nor found!'});
-    }
-    bcrypt.hash(newPassword, 10, (err, hashedPassword) => {
-        if(err){
-            res.json({message: err});
-            return false;
+    try{
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        if(hashedPassword){
+            const updatedUser = await User.updateOne(
+                        { _id: ObjectID(userID) },
+                        {
+                            $set: {
+                                password: hashedPassword
+                            }
+                        }
+                    );
+            res.json({ message: 'Password successfully changed' });
         }
-        User.updateOne(
-            { _id: ObjectID(user._id)},
+    }
+    catch(err){
+        res.status(400).json({message: [err]})
+    }
+}
+
+const getUsers = async (req, res, next) => {
+    try{
+        const users = await User.find();
+        res.json({ users });
+    }
+    catch(err){
+        res.status(400).json({ message: [err] });
+    }
+}
+
+const getUserByID = async (req, res, next) => {
+    try{
+        const userID = req.params.userID;
+        const user = await User.findOne({_id: ObjectID(userID)});
+        res.json({ user });
+    }
+    catch(err){
+        res.status(400).json({ message: [err] });
+    }
+}
+
+const updateUserByID = async (req, res, next) => {
+    try{
+        const user = req.body.user;
+        const updatedUser = await User.updateOne(
+            { _id: ObjectID(user._id) },
             {
                 $set: {
-                    password: hashedPassword
+                    name: user.name,
+                    email: user.email
                 }
             }
         )
-        .then((result)=>{
-            res.json({message: 'Password successfully changed'});
-        })
-        .catch((err) => res.status(400).json({message: err}));
-    });
-}
-
-const getUsers = (req, res, next) => {
-    User.find()
-        .then((users) => res.json({users}))
-        .catch((err) => res.status(400).json({message: err}));
-}
-
-const getUserByID = (req, res, next) => {
-    const userID = req.params.userID;
-    if(userID.length !== 24){
-        return res.status(400).json({message: 'Bad request: Invalid user ID, length must be 24 character!'});
+        res.json({ message: 'User successfully updated!' });
     }
-    User.findOne({_id: ObjectID(userID)})
-        .then((user) => {
-            if(!user){
-                return res.status(404).json({message: 'Not found: User not found!'})
-            }
-            res.json({user});
-        })
-        .catch((err) => {
-            return res.status(400).json({message: err});
-        });
-}
-
-const updateUserByID = async (req,res,next) => {
-    const user = req.body.user;
-
-    if(user._id.length !== 24){
-        return res.status(400).json({message: 'Bad request: Invalid user ID, length must be 24 character!'});
-    }
-    const isUserValid = await User.findOne({_id: ObjectID(user._id)});
-    if(!isUserValid){
-        return res.status(404).json({message: 'Not found: user not found!'});
-    }
-    bcrypt.compare(user.password, isUserValid.password, async (err, result) => {
-        if(err){
-            return res.status(400).json({message: err});
-        }
-        if(result){
-            if(!validator.isEmail(user.email)){
-                return res.status(400).json({message: 'Bad request: Invalid email!'});
-            }
-            const isUserEmail = await User.findOne({email: user.email});
-            if(isUserEmail){
-                if(isUserValid.email !== isUserEmail.email){
-                    return res.status(400).json({message: 'Bad request: Email already exist!'});
-                }
-            }
-            
-            User.updateOne(
-                {_id: ObjectID(user._id)},
-                {
-                    $set: {
-                        name: user.name,
-                        email: user.email
-                    }
-                }
-            )
-            .then(() => res.json({message: 'User successfully updated!'}))
-            .catch((err) => res.status(400).json({message: err}));
-        }
-        else{
-            return res.status(400).json({message: 'Bad request: Invalid password!'});
-        }
-    });
-
-}
-
-const deleteUserByID = async (req,res,next) => {
-    const userID = req.params.userID;
-    if(userID.length !== 24){
-        return res.status(400).json({message: 'Bad request: Invalid user ID, length must be 24 character!'});
-    }
-    const user = await User.findOne({_id: ObjectID(userID)});
-    if(user){
-        User.deleteOne({_id: user._id})
-            .then(() => {
-                res.json({message: 'User successfully deleted!'});
-            })
-            .catch((err) => res.status(400).json({message: err}));
-    }
-    else{
-        return res.status(404).json({message: 'Not found: user not found!'});
+    catch(err){
+        res.status(400).json({ message: [err] });
     }
 }
 
-const deleteUsers = (req, res, next) => {
-    User.deleteMany()
-        .then(() => {
-            res.json({message: 'Users successfully deleted'})
-        })
-        .catch((err) => {
-            res.status(400).json({message: err})
-        })
+const deleteUserByID = async (req, res, next) => {
+    try{
+        const userID = req.params.userID;
+        const user = await User.findOne({ _id: ObjectID(userID) });
+        const deletedUser = await User.deleteOne({ _id: ObjectID(userID)});
+        res.json({ message: 'User successfully deleted!' });
+    }
+    catch(err){
+        res.status(400).json({ message: [err] });   
+    }
+}
+
+const deleteUsers = async (req, res, next) => {
+    try{
+        await User.deleteMany();
+        res.json({ message: 'Users successfully deleted' });
+    }
+    catch(err){
+        res.status(400).json({ message: [err] });
+    }
 }
 
 module.exports = {
@@ -246,5 +162,4 @@ module.exports = {
     updateUserByID,
     deleteUserByID,
     deleteUsers,
-    hello
 }

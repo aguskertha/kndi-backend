@@ -1,15 +1,33 @@
 const router = require('express').Router();
-const UserController = require('./controller');
+const {
+    login,
+    register,
+    newToken,
+    resetPassword,
+    getUsers,
+    getUserByID,
+    updateUserByID,
+    deleteUserByID,
+    deleteUsers,
+} = require('./controller');
+const {
+    registerValidation,
+    loginValidation,
+    tokenValidation,
+    resetPasswordValidation,
+    getUserByIDValidation,
+    updateUserByIDValidation,
+    deleteUserByIDValidation,
+} = require('./validation');
 
-router.post('/register', UserController.register);
-router.post('/login', UserController.login);
-router.post('/token', UserController.newToken);
-router.post('/reset-password', UserController.resetPassword);
-router.get('/', UserController.getUsers);
-router.get('/:userID', UserController.getUserByID);
-router.post('/update', UserController.updateUserByID);
-router.delete('/:userID', UserController.deleteUserByID);
-router.delete('/', UserController.deleteUsers);
-router.get('/hello', UserController.hello);
+router.post('/register', registerValidation, register);
+router.post('/login', loginValidation, login);
+router.post('/token', tokenValidation, newToken);
+router.post('/reset-password', resetPasswordValidation ,resetPassword);
+router.get('/', getUsers);
+router.get('/:userID', getUserByIDValidation, getUserByID);
+router.post('/update', updateUserByIDValidation ,updateUserByID);
+router.delete('/:userID', deleteUserByIDValidation, deleteUserByID);
+router.delete('/', deleteUsers);
 
 module.exports = router;
