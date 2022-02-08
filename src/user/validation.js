@@ -1,7 +1,4 @@
-const User = require('./model');
 const validator = require('validator');
-const bcrypt = require('bcryptjs');
-const ObjectID = require('mongodb').ObjectId;
 
 const registerValidation = async (req, res, next) => {
     const email = req.body.email;
@@ -16,10 +13,7 @@ const registerValidation = async (req, res, next) => {
     if (!validator.isEmail(email)) {
         errors.push('Invalid email format!');
     }
-    const user = await User.findOne({ email });
-    if (user) {
-        errors.push('Email already exist!');
-    }
+
     if (errors.length == 0) {
         next();
     }
@@ -41,19 +35,6 @@ const loginValidation = async (req, res, next) => {
     if (!validator.isEmail(email)) {
         errors.push('Invalid email format!');
     }
-    if (errors.length == 0) {
-        const user = await User.findOne({ email });
-        if (!user) {
-            errors.push('User not found!');
-        }
-        else{
-            const validPassword = await bcrypt.compare(password, user.password);
-            if (!validPassword) {
-                errors.push('Password does not matched!');
-            }
-        }
-
-    }
 
     if (errors.length == 0) {
         next();
@@ -74,26 +55,11 @@ const tokenValidation = async (req, res, next) => {
     if (refreshToken == '') {
         errors.push('Refresh Token required!');
     }
-    
-    if(errors.length == 0){
-        if (userID.length !== 24) {
-            errors.push('Invalid user ID, length must be 24 character!');
-        }
-        else{
-            const user = await User.findOne({ _id: ObjectID(userID) });
-            if (!user) {
-                errors.push('User not found!');
-            }
-            else{
-                if (user.refreshToken == '') {
-                    errors.push('You need login first!');
-                }
-                if (refreshToken != user.refreshToken) {
-                    errors.push('Invalid refresh token!');
-                }
-            }
-        }
+
+    if (userID.length !== 24) {
+        errors.push('Invalid user ID, length must be 24 character!');
     }
+
     if (errors.length == 0) {
         next();
     }
@@ -102,7 +68,7 @@ const tokenValidation = async (req, res, next) => {
     }
 }
 
-const resetPasswordValidation = async (req,res,next) => {
+const resetPasswordValidation = async (req, res, next) => {
     const userID = req.body.userID;
     const password = req.body.newPassword;
     let errors = [];
@@ -113,17 +79,8 @@ const resetPasswordValidation = async (req,res,next) => {
     if (password == '') {
         errors.push('password required!');
     }
-
-    if (errors.length == 0) {
-        if (userID.length !== 24) {
-            errors.push('Invalid user ID, length must be 24 character!');
-        }
-        else{
-            const user = await User.findOne({ _id: ObjectID(userID) });
-            if (!user) {
-                errors.push('User not found!');
-            }
-        }
+    if (userID.length !== 24) {
+        errors.push('Invalid user ID, length must be 24 character!');
     }
 
     if (errors.length == 0) {
@@ -142,12 +99,6 @@ const getUserByIDValidation = async (req, res, next) => {
     if (userID.length !== 24) {
         errors.push('Invalid user ID, length must be 24 character!');
     }
-    else{
-        const user = await User.findOne({_id: ObjectID(userID)});
-        if (!user) {
-            errors.push('User not found!');
-        }
-    }
     if (errors.length == 0) {
         next();
     }
@@ -156,10 +107,10 @@ const getUserByIDValidation = async (req, res, next) => {
     }
 }
 
-const updateUserByIDValidation = async (req,res,next) => {
+const updateUserByIDValidation = async (req, res, next) => {
     const user = req.body.user;
     let errors = [];
-    
+
     if (user.name == '') {
         errors.push('Name required!');
     }
@@ -175,24 +126,6 @@ const updateUserByIDValidation = async (req,res,next) => {
     if (user._id.length !== 24) {
         errors.push('Invalid user ID, length must be 24 character!');
     }
-    else{
-        const isUserValid = await User.findOne({ _id: ObjectID(user._id) });
-        if (!isUserValid) {
-            errors.push('User not found!');
-        }
-        else{
-            const validPassword = await bcrypt.compare(user.password, isUserValid.password);
-            if(!validPassword){
-                errors.push('Password does not matched!');
-            }
-            const isUserEmail = await User.findOne({ email: user.email });
-            if (isUserEmail) {
-                if (isUserValid.email !== isUserEmail.email) {
-                    errors.push('Email already exist!');
-                }
-            }
-        }
-    }
 
     if (errors.length == 0) {
         next();
@@ -202,20 +135,14 @@ const updateUserByIDValidation = async (req,res,next) => {
     }
 }
 
-const deleteUserByIDValidation = async (req,res,next) => {
+const deleteUserByIDValidation = async (req, res, next) => {
     const userID = req.params.userID;
     let errors = [];
 
     if (userID.length !== 24) {
         errors.push('Invalid user ID, length must be 24 character!');
     }
-    else{
-        const user = await User.findOne({ _id: ObjectID(userID) });
-        if(!user){
-            errors.push('User not found!');
-        }
-    }
-    
+
     if (errors.length == 0) {
         next();
     }
