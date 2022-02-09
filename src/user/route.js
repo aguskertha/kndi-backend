@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const authenticate = require('../middleware/authenticate');
 const {
     login,
     register,
@@ -9,6 +10,7 @@ const {
     updateUserByID,
     deleteUserByID,
     deleteUsers,
+    logout
 } = require('./controller');
 const {
     registerValidation,
@@ -23,11 +25,12 @@ const {
 router.post('/register', registerValidation, register);
 router.post('/login', loginValidation, login);
 router.post('/token', tokenValidation, newToken);
-router.post('/reset-password', resetPasswordValidation ,resetPassword);
-router.get('/', getUsers);
-router.get('/:userID', getUserByIDValidation, getUserByID);
-router.post('/update', updateUserByIDValidation ,updateUserByID);
-router.delete('/:userID', deleteUserByIDValidation, deleteUserByID);
-router.delete('/', deleteUsers);
+router.delete('/logout', authenticate, logout);
+router.post('/reset-password', [authenticate, resetPasswordValidation], resetPassword);
+router.post('/update', [authenticate, updateUserByIDValidation], updateUserByID);
+router.get('/:userID', [authenticate, getUserByIDValidation], getUserByID);
+router.delete('/:userID', [authenticate, deleteUserByIDValidation], deleteUserByID);
+router.get('/', authenticate, getUsers);
+router.delete('/', authenticate, deleteUsers);
 
 module.exports = router;
