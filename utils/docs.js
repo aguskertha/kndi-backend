@@ -14,10 +14,15 @@ const swaggerOptions = {
         servers: [
             {
                 url: 'http://localhost:5000'
+            },
+            {
+                url: 'http://192.168.100.176:5000'
             }
         ]
     },
-    apis: ['./routes/*.js']
+    apis: [
+        './src/user/route.js'
+    ]
 }
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
