@@ -24,7 +24,7 @@ const register = async (req, res, next) => {
             res.json({ message: 'User successfully added' });
         }
         catch (err) {
-            res.status(404).json({ message: [err] });
+            res.status(400).json({ message: [err.toString()] });
         }
     });
 }
@@ -49,7 +49,7 @@ const login = async (req, res, next) => {
         }
         const token = generateToken(user);
         const refreshToken = jwt.sign({ userID: user._id }, SECRET_KEY);
-        const updatedUser = await User.updateOne(
+        await User.updateOne(
             { _id: ObjectID(user._id) },
             {
                 $set: {
@@ -60,7 +60,7 @@ const login = async (req, res, next) => {
         res.json({ userID: user._id, message: 'Login successfully', token, refreshToken });
     }
     catch (err) {
-        res.status(400).json({ message: [err] })
+        res.status(400).json({ message: [err.toString()] });
     }
 }
 
@@ -91,7 +91,7 @@ const newToken = async (req, res, next) => {
         }
     }
     catch (err) {
-        res.status(400).json({ message: [err] })
+        res.status(400).json({ message: [err.toString()] });
     }
 }
 
@@ -111,7 +111,7 @@ const resetPassword = async (req, res, next) => {
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         if (hashedPassword) {
-            const updatedUser = await User.updateOne(
+            await User.updateOne(
                 { _id: ObjectID(userID) },
                 {
                     $set: {
@@ -123,7 +123,7 @@ const resetPassword = async (req, res, next) => {
         }
     }
     catch (err) {
-        res.status(400).json({ message: [err] })
+        res.status(400).json({ message: [err.toString()] });
     }
 }
 
@@ -133,7 +133,7 @@ const getUsers = async (req, res, next) => {
         res.json({ users });
     }
     catch (err) {
-        res.status(400).json({ message: [err] });
+        res.status(400).json({ message: [err.toString()] });
     }
 }
 
@@ -147,7 +147,7 @@ const getUserByID = async (req, res, next) => {
         res.json({ user });
     }
     catch (err) {
-        res.status(400).json({ message: [err] });
+        res.status(400).json({ message: [err.toString()] });
     }
 }
 
@@ -174,7 +174,7 @@ const updateUserByID = async (req, res, next) => {
         if (!errors.length == 0) {
             return res.status(400).json({ message: errors });
         }
-        const updatedUser = await User.updateOne(
+        await User.updateOne(
             { _id: ObjectID(user._id) },
             {
                 $set: {
@@ -186,7 +186,7 @@ const updateUserByID = async (req, res, next) => {
         res.json({ message: 'User successfully updated!' });
     }
     catch (err) {
-        res.status(400).json({ message: [err] });
+        res.status(400).json({ message: [err.toString()] });
     }
 }
 
@@ -197,11 +197,11 @@ const deleteUserByID = async (req, res, next) => {
         if (!user) {
             return res.status(400).json({ message: ['User not found!'] });
         }
-        const deletedUser = await User.deleteOne({ _id: ObjectID(userID) });
+        await User.deleteOne({ _id: ObjectID(userID) });
         res.json({ message: 'User successfully deleted!' });
     }
     catch (err) {
-        res.status(400).json({ message: [err] });
+        res.status(400).json({ message: [err.toString()] });
     }
 }
 
@@ -211,7 +211,24 @@ const deleteUsers = async (req, res, next) => {
         res.json({ message: 'Users successfully deleted' });
     }
     catch (err) {
-        res.status(400).json({ message: [err] });
+        res.status(400).json({ message: [err.toString()] });
+    }
+}
+
+const logout = async (req,res,next) => {
+    try {
+        const userID = req.body.userID;
+        await User.updateOne(
+            { _id: ObjectID(userID)},
+            {
+                $set: {
+                    refreshToken: ''
+                }
+            }
+        );
+        res.json({message: 'Logout successfully'});
+    } catch (err) {
+        res.status(400).json({ message: [err.toString()] });
     }
 }
 
@@ -225,4 +242,5 @@ module.exports = {
     updateUserByID,
     deleteUserByID,
     deleteUsers,
+    logout
 }
