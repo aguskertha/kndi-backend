@@ -130,7 +130,7 @@ const resetPassword = async (req, res, next) => {
 const getUsers = async (req, res, next) => {
     try {
         const users = await User.find();
-        res.json({ users });
+        res.json(users);
     }
     catch (err) {
         res.status(400).json({ message: [err.toString()] });
@@ -144,7 +144,7 @@ const getUserByID = async (req, res, next) => {
         if (!user) {
             return res.status(400).json({ message: ['User not found!'] });
         }
-        res.json({ user });
+        res.json(user);
     }
     catch (err) {
         res.status(400).json({ message: [err.toString()] });
