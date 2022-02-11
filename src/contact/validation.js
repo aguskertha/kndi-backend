@@ -46,11 +46,11 @@ const createContactValidation = (req, res, next) => {
 }
 
 const updateContactByIDValidation = (req, res, next) => {
-    const name = req.body.contact.name;
-    const email = req.body.contact.email;
-    const phone = req.body.contact.phone;
-    const company = req.body.contact.company;
-    const message = req.body.contact.message;
+    const name = req.body.name;
+    const email = req.body.email;
+    const phone = req.body.phone;
+    const company = req.body.company;
+    const message = req.body.message;
     let errors = [];
     if (name == '') {
         errors.push('Name required!');
