@@ -25,7 +25,13 @@ const getContacts = async (req,res,next) => {
 
 const updateContactByID = async (req, res, next) => {
     try{
-        const contact = req.body.contact;
+        const _id = req.body._id;
+        const name = req.body.name;
+        const email = req.body.email;
+        const phone = req.body.phone;
+        const company = req.body.company;
+        const message = req.body.message;
+        const contact = {_id, name, email, phone, company, message};
         const isContact = await Contact.findOne({_id: ObjectID(contact._id)});
         if(!isContact){
             throw 'Contact not found!';
