@@ -56,8 +56,10 @@ const tokenValidation = async (req, res, next) => {
         errors.push('Refresh Token required!');
     }
 
-    if (userID.length !== 24) {
-        errors.push('Invalid user ID, length must be 24 character!');
+    if(userID){
+        if (userID.length !== 24) {
+            errors.push('Invalid user ID, length must be 24 character!');
+        }
     }
 
     if (errors.length == 0) {

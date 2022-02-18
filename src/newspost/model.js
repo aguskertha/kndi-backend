@@ -10,6 +10,14 @@ const newspostSchema = new Schema({
         type: Number,
         required: true
     },
+    publishDate: {
+        type: String,
+        required: true
+    },
+    thumbnailURL: {
+        type: String,
+        required: true
+    },
     contents: [
         {
             title: {type: String, required: true, trim: true,},
