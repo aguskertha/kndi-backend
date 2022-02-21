@@ -56,7 +56,8 @@ const createFiles = async (req, res, next) => {
         await Promise.all(req.files.files.map(async (file) => {
             const { buffer, originalname } = file;
             const fileName = originalname.replace(/\s/g, '');
-            const ref = new Date().toISOString().replace(/:/g, '-')+'-'+fileName.toLowerCase()+'.webp';
+            const filterFileName = fileName.replace(/\.[^/.]+$/, "");
+            const ref = new Date().toISOString().replace(/:/g, '-')+'-'+filterFileName.toLowerCase()+'.webp';
             await sharp(buffer)
                 .webp({ quality: 20 })
                 .toFile("./public/images/" + ref);
