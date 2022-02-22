@@ -165,6 +165,19 @@ const getNewsPostByID = async (req, res, next) => {
     }
 }
 
+const getNewsPostBySlug = async (req, res, next) => {
+    try {
+        const slug = req.params.slug;
+        const newspost = await NewsPost.findOne({slug});
+        if(!newspost){
+            throw 'News not found!';
+        }
+        res.json(newspost);
+    } catch (err) {
+        res.status(400).json({message: [err.toString()]});
+    }
+}
+
 const deleteNewsPostByID = async (req, res, next) => {
     try {
         const newspostID = req.params.newspostID;
@@ -224,6 +237,7 @@ module.exports = {
     changeNewsPostToDraft,
     changeNewsPostToPublish,
     getNewsPostByID,
+    getNewsPostBySlug,
     deleteNewsPostByID,
     updateNewsPostByID
 }

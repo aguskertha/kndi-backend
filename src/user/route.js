@@ -170,6 +170,8 @@ module.exports = router;
  *                      properties:
  *                          userID:
  *                              type: string
+ *                          password:
+ *                              type: string
  *                          newPassword:
  *                              type: string
  *              application/x-www-form-urlencoded:
@@ -177,6 +179,8 @@ module.exports = router;
  *                      type: object
  *                      properties:
  *                          userID:
+ *                              type: string
+ *                          password:
  *                              type: string
  *                          newPassword:
  *                              type: string
