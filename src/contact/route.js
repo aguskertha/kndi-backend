@@ -6,7 +6,8 @@ const {
     updateContactByID,
     getContactByID,
     deleteContactByID,
-    deleteContacts
+    deleteContacts,
+    getLatestContacts
 } = require('./controller');
 const {
     createContactValidation,
@@ -15,6 +16,7 @@ const {
 
 router.post('/', createContactValidation, createContact);
 router.get('/', authenticate, getContacts);
+router.get('/latest', authenticate, getLatestContacts);
 router.delete('/', authenticate, deleteContacts);
 router.post('/update', [authenticate, updateContactByIDValidation], updateContactByID);
 router.get('/:contactID', authenticate, getContactByID);

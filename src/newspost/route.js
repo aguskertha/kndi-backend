@@ -13,7 +13,8 @@ const {
     getNewsPostByID,
     getNewsPostBySlug,
     deleteNewsPostByID,
-    updateNewsPostByID
+    updateNewsPostByID,
+    getLatestNewsPosts
 } = require('./controller');
 const {
     createNewsPostValidation,
@@ -22,6 +23,7 @@ const {
 
 router.post('/', createNewsPostValidation, createNewsPost);
 router.get('/', getNewsPosts);
+router.get('/latest', getLatestNewsPosts);
 router.delete('/', deleteNewsPosts);
 router.get('/:slug', getNewsPostBySlug);
 router.delete('/:newspostID', deleteNewsPostByID);

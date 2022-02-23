@@ -24,14 +24,10 @@ const createNewsPostValidation = async (req, res, next) => {
 const updateNewsPostByIDValidation = async (req, res, next) => {
     let errors = [];
     const newspost = req.body;
-    const thumbnailURL = newspost.thumbnailURL;
     const contents = newspost.contents;
     const publish = newspost.publish;
     const publishDate = newspost.publishDate;
 
-    if (thumbnailURL == '') {
-        errors.push('Thumbnail URL required!');
-    }
     if (contents) {
         if(contents.length == 0){
             errors.push('Contents required!');

@@ -6,11 +6,14 @@ const sharp = require('sharp');
 
 const createNewsPost = async (req, res, next) => {
     try{
-        const thumbnailURL = req.body.thumbnailURL;
+        let thumbnailURL = req.body.thumbnailURL;
         const contents = req.body.contents;
         let slug = '';
         const publish = 0;
         const publishDate = '-';
+        if (thumbnailURL == '') {
+            thumbnailURL = '/public/images/2022-02-23T05-56-21.385Z-default-image-thumbnail.webp';
+        }
         contents.forEach(content => {
             if(content.languageCode == 'en'){
                 slug = Slug(content.title);
@@ -81,7 +84,6 @@ const createImages = async (req, res, next) => {
 
 const createFile = async (req, res, name) => {
     try{
-        console.log(req.file);
         fs.access("./public/images/", (error) => {
             if (error) {
                 fs.mkdirSync("./public/images/");
@@ -89,7 +91,8 @@ const createFile = async (req, res, name) => {
         });
         const { buffer, originalname } = req.file;
         const fileName = originalname.replace(/\s/g, '');
-        const ref = new Date().toISOString().replace(/:/g, '-')+'-'+fileName.toLowerCase()+name+'.webp';
+        const filterFileName = fileName.replace(/\.[^/.]+$/, "");
+        const ref = new Date().toISOString().replace(/:/g, '-')+'-'+filterFileName.toLowerCase()+name+'.webp';
         await sharp(buffer)
             .webp({ quality: 20 })
             .toFile("./public/images/" + ref);
@@ -228,6 +231,22 @@ const updateNewsPostByID = async (req, res, next) => {
     }
 }
 
+
+const getLatestNewsPosts = async (req, res, next) => {
+    try{
+        const sumNewsposts = await NewsPost.countDocuments();
+        const latestNewspost = await NewsPost.find().sort({'updatedAt': -1}).limit(3);
+        const data = {
+            sumNewsposts,
+            latestNewspost
+        }
+        res.json(data);
+    }
+    catch(err){
+        res.status(400).json({message: [err.toString()]});
+    }
+}
+
 module.exports = {
     createNewsPost,
     getNewsPosts,
@@ -239,5 +258,6 @@ module.exports = {
     getNewsPostByID,
     getNewsPostBySlug,
     deleteNewsPostByID,
-    updateNewsPostByID
+    updateNewsPostByID,
+    getLatestNewsPosts
 }
