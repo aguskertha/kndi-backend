@@ -1,12 +1,8 @@
 
 const createNewsPostValidation = async (req, res, next) => {
     let errors = [];
-    const thumbnailURL = req.body.thumbnailURL;
     const contents = req.body.contents;
 
-    if (thumbnailURL == '') {
-        errors.push('Thumbnail URL required!');
-    }
     if (contents) {
         if(contents.length == 0){
             errors.push('Contents required!');
