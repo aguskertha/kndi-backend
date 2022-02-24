@@ -103,10 +103,16 @@ const resetPassword = async (req, res, next) => {
     try { 
         const userID = req.body.userID;
         const newPassword = req.body.newPassword;
+        const password = req.body.password;
 
         const user = await User.findOne({ _id: ObjectID(userID) });
         if (!user) {
-            return res.status(400).json({ message: ['User not found!'] });
+            throw "User not found";
+        }
+
+        const validPassword = await bcrypt.compare(password, user.password);
+        if (!validPassword) {
+            throw "Invalid password";
         }
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);

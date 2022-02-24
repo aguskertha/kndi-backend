@@ -15,8 +15,7 @@ const newspostSchema = new Schema({
         required: true
     },
     thumbnailURL: {
-        type: String,
-        required: true
+        type: String
     },
     contents: [
         {

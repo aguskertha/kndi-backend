@@ -88,11 +88,27 @@ const deleteContacts = async (req, res, next) => {
     }
 }
 
+const getLatestContacts = async (req, res, next) => {
+    try{
+        const sumContacts = await Contact.countDocuments();
+        const latestContacts = await Contact.find().sort({'updatedAt': -1}).limit(3);
+        const data = {
+            sumContacts,
+            latestContacts
+        }
+        res.json(data);
+    }
+    catch(err){
+        res.status(400).json({message: [err.toString()]});
+    }
+}
+
 module.exports = {
     createContact,
     getContacts,
     updateContactByID,
     getContactByID,
     deleteContactByID,
-    deleteContacts
+    deleteContacts,
+    getLatestContacts
 }
