@@ -21,7 +21,6 @@ const updateNewsPostByIDValidation = async (req, res, next) => {
     let errors = [];
     const newspost = req.body;
     const contents = newspost.contents;
-    const publish = newspost.publish;
     const publishDate = newspost.publishDate;
 
     if (contents) {
@@ -31,9 +30,6 @@ const updateNewsPostByIDValidation = async (req, res, next) => {
     }
     if(publishDate !== '-'){
         errors.push('Publish Date cannot changed manually!');
-    }
-    if(publish !== 0){
-        errors.push('Change news to draft first!');
     }
 
     if (errors.length == 0) {

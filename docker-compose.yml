@@ -17,10 +17,14 @@ services:
   service_db:
     container_name: service_db
     image: mongo:4.4
+    environment:
+     - TZ=Asia/Jakarta
     command: mongod --port 27018
     ports:
       - "27018:27018"
     volumes:
       - ./db/data:/data/db
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
 
       
