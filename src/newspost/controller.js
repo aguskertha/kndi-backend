@@ -3,6 +3,7 @@ const Slug = require('slug');
 const ObjectID = require('mongodb').ObjectId;
 const fs = require('fs');
 const sharp = require('sharp');
+const moment = require('moment');
 
 const createNewsPost = async (req, res, next) => {
     try{
@@ -12,7 +13,7 @@ const createNewsPost = async (req, res, next) => {
         const publish = 0;
         const publishDate = '-';
         if (thumbnailURL == '') {
-            thumbnailURL = '/public/images/2022-02-23T05-56-21.385Z-default-image-thumbnail.webp';
+            thumbnailURL = '/public/images/default-image-thumbnail.webp';
         }
         contents.forEach(content => {
             if(content.languageCode == 'en'){
@@ -60,7 +61,8 @@ const createFiles = async (req, res, next) => {
             const { buffer, originalname } = file;
             const fileName = originalname.replace(/\s/g, '');
             const filterFileName = fileName.replace(/\.[^/.]+$/, "");
-            const ref = new Date().toISOString().replace(/:/g, '-')+'-'+filterFileName.toLowerCase()+'.webp';
+            const date = moment().format('YYYY-MM-DD-hh-mm-ss');
+            const ref = date+'-'+filterFileName.toLowerCase()+'.webp';
             await sharp(buffer)
                 .webp({ quality: 20 })
                 .toFile("./public/images/" + ref);
@@ -92,7 +94,8 @@ const createFile = async (req, res, name) => {
         const { buffer, originalname } = req.file;
         const fileName = originalname.replace(/\s/g, '');
         const filterFileName = fileName.replace(/\.[^/.]+$/, "");
-        const ref = new Date().toISOString().replace(/:/g, '-')+'-'+filterFileName.toLowerCase()+name+'.webp';
+        const date = moment().format('YYYY-MM-DD-hh-mm-ss');
+        const ref = date+'-'+filterFileName.toLowerCase()+name+'.webp';
         await sharp(buffer)
             .webp({ quality: 20 })
             .toFile("./public/images/" + ref);
@@ -123,7 +126,7 @@ const changeNewsPostToPublish = async (req, res, next) => {
             {
                 $set: {
                     publish: 1,
-                    publishDate: new Date().toISOString().replace(/:/g, '-')
+                    publishDate: moment().format('LLLL')
                 }
             }
         )
@@ -215,9 +218,6 @@ const updateNewsPostByID = async (req, res, next) => {
             }
         });
         newspost.slug = newSlug;
-        if(newspost.publish !== isNewspost.publish && newspost.publishDate !== isNewspost.publishDate){
-            throw 'News has been published, cannot be changed!'
-        }
         await NewsPost.updateOne(
             { _id: ObjectID(newspost._id) },
             {

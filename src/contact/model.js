@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const contactSchema = new Schema({
+const moment = require('moment');
+let contactSchema = new Schema({
     name: {
         type: String,
         required: true,
@@ -26,8 +27,25 @@ const contactSchema = new Schema({
         type: String,
         required: true,
         trim: true,
+    },
+    createdAt: {
+        type: String
+    },
+    updatedAt: {
+        type: String
     }
-}, {timestamps: true,});
+});
+
+contactSchema.pre('save', function(next){
+    this.createdAt = moment().format();
+    this.updatedAt = moment().format();
+    next();
+});
+
+contactSchema.pre('updateOne', function(next){
+    this.update({},{ $set: { updatedAt: moment().format() } });
+    next();
+});
 
 const Contact = mongoose.model('Contact', contactSchema);
 module.exports = Contact;

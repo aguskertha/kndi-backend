@@ -1,4 +1,8 @@
 FROM node:16
+
+ENV TZDATA Asia/Jakarta
+RUN ln -fs /usr/share/zoneinfo/$TZDATA /etc/localtime
+
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
