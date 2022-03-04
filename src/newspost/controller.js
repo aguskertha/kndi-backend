@@ -80,6 +80,23 @@ const createFiles = async (req, res, next) => {
     }
 }
 
+const createVideos = async (req, res, next) => {
+    try{
+        let files = [];
+        req.files.files.forEach(file => {
+            const data = {
+                url: file.path,
+                fileName: file.filename
+            }
+            files.push(data);
+        });
+        res.json(files);
+    }
+    catch(err){
+        res.status(400).json({message: [err.toString()]});
+    }
+}
+
 const createImages = async (req, res, next) => {
     await createFiles(req, res, next);
 }
@@ -259,5 +276,6 @@ module.exports = {
     getNewsPostBySlug,
     deleteNewsPostByID,
     updateNewsPostByID,
-    getLatestNewsPosts
+    getLatestNewsPosts,
+    createVideos
 }
