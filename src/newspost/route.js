@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const authenticate = require('../middleware/authenticate');
-const {singleUploadFile, multiUploadFile} = require('./../middleware/upload-file');
+const {singleUploadFile, multiUploadFile} = require('../middleware/upload-image');
+const {multiUploadFileVideos} = require('../middleware/upload-video');
 
 const {
     createNewsPost,
@@ -14,7 +15,8 @@ const {
     getNewsPostBySlug,
     deleteNewsPostByID,
     updateNewsPostByID,
-    getLatestNewsPosts
+    getLatestNewsPosts,
+    createVideos
 } = require('./controller');
 const {
     createNewsPostValidation,
@@ -32,6 +34,7 @@ router.post('/publish', authenticate, changeNewsPostToPublish);
 router.post('/draft', authenticate, changeNewsPostToDraft);
 router.post('/uploadthumbnail', authenticate, singleUploadFile, createThumbnail);
 router.post('/uploadimages', authenticate, multiUploadFile, createImages);
+router.post('/uploadvideos', authenticate, multiUploadFileVideos, createVideos);
 
 module.exports = router;
 
