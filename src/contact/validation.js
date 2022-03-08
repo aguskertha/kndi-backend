@@ -12,7 +12,6 @@ const createContactValidation = (req, res, next) => {
     const name = req.body.name;
     const email = req.body.email;
     const phone = req.body.phone;
-    const company = req.body.company;
     const message = req.body.message;
     let errors = [];
     if (name == '') {
@@ -23,9 +22,6 @@ const createContactValidation = (req, res, next) => {
     }
     if (phone == '') {
         errors.push('Phone required!');
-    }
-    if (company == '') {
-        errors.push('Company required!');
     }
     if (message == '') {
         errors.push('Message required!');
@@ -49,7 +45,6 @@ const updateContactByIDValidation = (req, res, next) => {
     const name = req.body.name;
     const email = req.body.email;
     const phone = req.body.phone;
-    const company = req.body.company;
     const message = req.body.message;
     let errors = [];
     if (name == '') {
@@ -60,9 +55,6 @@ const updateContactByIDValidation = (req, res, next) => {
     }
     if (phone == '') {
         errors.push('Phone required!');
-    }
-    if (company == '') {
-        errors.push('Company required!');
     }
     if (message == '') {
         errors.push('Message required!');

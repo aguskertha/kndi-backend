@@ -18,11 +18,6 @@ let contactSchema = new Schema({
         required: true,
         trim: true,
     },
-    company: {
-        type: String,
-        required: true,
-        trim: true,
-    },
     message: {
         type: String,
         required: true,

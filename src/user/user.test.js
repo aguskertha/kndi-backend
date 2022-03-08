@@ -4,7 +4,9 @@ const request = supertest(app);
 const User = require('./model');
 const mongoose = require('mongoose');
 const port = process.env.db_port || 27018;
-const databaseLocal = `mongodb://${process.env.db_service_name}:${port}/${process.env.db_name}`;
+const databaseLocal = `mongodb://${process.env.db_service_name}:${port}/${process.env.db_name_test_user}`;
+const DUMMY_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySUQiOiI2MjE4NDY4ZjFiNDQ0NTAwMWY4ODUxNjIiLCJpYXQiOjE2NDY2NDY0NTYsImV4cCI6MTY0NjY0NjQ3Nn0.fZzkHzWGsvL8DlChwyISFxTYM7zN2pjxJahMV0QzKok";
+const DUMMY_USER_ID = "621e3ee807fb490ad0208040";
 
 beforeAll(async () => {
     await mongoose.connect(databaseLocal, {
@@ -19,13 +21,13 @@ describe('POST /api/v1/user/register', function() {
     const response = await request.post('/api/v1/user/register').send({email: 'kertha@gmail.com', password: 'kertha123'});
     expect(response.body.message).toBe('User successfully added');
     expect(response.status).toEqual(200);
-  }, 30000);
+  });
 
   it('400 => Register with required email and password', async function() {
     const response = await request.post('/api/v1/user/register').send({email: '', password: ''});
     expect(response.body.message).toStrictEqual(["Email required!", "Password required!", "Invalid email format!"]);
     expect(response.status).toEqual(400);
-  }, 30000);
+  });
 
 });
 
@@ -52,25 +54,8 @@ describe('POST /api/v1/user/token', () => {
     const response = await request.post('/api/v1/user/token').send({refreshToken, userID});
     expect(response.status).toEqual(200);
   });
-  it('400 => Invalid refreshToken whene generate token',async () => {
-    await request.post('/api/v1/user/register').send({email: 'kertha@gmail.com', password: 'kertha123'});
-    await request.post('/api/v1/user/register').send({email: 'agus@gmail.com', password: 'agus123'});
-    const loginResponse = await request.post('/api/v1/user/login').send({email: 'kertha@gmail.com', password: 'kertha123'});
-    const loginResponse2 = await request.post('/api/v1/user/login').send({email: 'agus@gmail.com', password: 'agus123'});
-    const refreshToken = loginResponse.body.refreshToken;
-    const userID = loginResponse2.body.userID;
-    const response = await request.post('/api/v1/user/token').send({refreshToken, userID});
-    expect(response.body.message).toStrictEqual(["Invalid refresh token!"]);
-    expect(response.status).toEqual(400);
-  });
-  it('400 => Invalid userID when generate token',async () => {
-    await request.post('/api/v1/user/register').send({email: 'kertha@gmail.com', password: 'kertha123'});
-    const loginResponse = await request.post('/api/v1/user/login').send({email: 'kertha@gmail.com', password: 'kertha123'});
-    const refreshToken = loginResponse.body.refreshToken;
-    const token = loginResponse.body.token;
-    const userID = loginResponse.body.userID;
-    await request.delete('/api/v1/user/'+userID).set('Authorization', `Bearer ${token}`);
-    const response = await request.post('/api/v1/user/token').send({refreshToken, userID});
+  it('400 => Bad Request generate token',async () => {
+    const response = await request.post('/api/v1/user/token').send({DUMMY_TOKEN, DUMMY_USER_ID});
     expect(response.body.message).toEqual(expect.arrayContaining([expect.any(String)]))
     expect(response.status).toEqual(400);
   });
