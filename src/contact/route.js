@@ -41,7 +41,6 @@ module.exports = router;
  *              - name
  *              - email
  *              - phone
- *              - company
  *              - message
  *          properties:
  *              name:
@@ -53,9 +52,6 @@ module.exports = router;
  *              phone:
  *                  type: String
  *                  description: The contact phone
- *              company:
- *                  type: String
- *                  description: The contact company
  *              message:
  *                  type: String
  *                  description: The contact message 
@@ -63,7 +59,6 @@ module.exports = router;
  *              name: Putu Bagus Kertha Segara
  *              email: kertha@gmail.com
  *              phone: '+6285738877999'
- *              company: PT Merdeka Selalu
  *              message: Mantap aja sih
  *  securitySchemes:
  *      bearerAuth:            # arbitrary name for the security scheme
@@ -134,8 +129,6 @@ module.exports = router;
  *                              type: string
  *                          phone:
  *                              type: string
- *                          company:
- *                              type: string
  *                          message:
  *                              type: string
  *              application/x-www-form-urlencoded:
@@ -149,8 +142,6 @@ module.exports = router;
  *                          email:
  *                              type: string
  *                          phone:
- *                              type: string
- *                          company:
  *                              type: string
  *                          message:
  *                              type: string

@@ -31,7 +31,10 @@ const createNewsPost = async (req, res, next) => {
 
 const getNewsPosts = async (req, res, next) => {
     try{
-        const newsposts = await NewsPost.find();
+        let newsposts = await NewsPost.find();
+        if(req.query.publish){
+            newsposts = await NewsPost.find({publish: req.query.publish});
+        }
         res.json(newsposts);
     }
     catch(err){
@@ -252,7 +255,10 @@ const updateNewsPostByID = async (req, res, next) => {
 const getLatestNewsPosts = async (req, res, next) => {
     try{
         const sumNewsposts = await NewsPost.countDocuments();
-        const latestNewspost = await NewsPost.find().sort({'updatedAt': -1}).limit(3);
+        let latestNewspost = await NewsPost.find().sort({'updatedAt': -1}).limit(3);
+        if(req.query.publish && req.query.limit){
+            latestNewspost = await NewsPost.find({publish: req.query.publish}).sort({'updatedAt': -1}).limit(Number(req.query.limit));
+        }
         const data = {
             sumNewsposts,
             latestNewspost

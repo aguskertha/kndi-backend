@@ -25,7 +25,7 @@ const {
 
 router.post('/', authenticate, createNewsPostValidation, createNewsPost);
 router.get('/', getNewsPosts);
-router.get('/latest',  getLatestNewsPosts);
+router.get('/latest', getLatestNewsPosts);
 router.delete('/', authenticate, deleteNewsPosts);
 router.get('/:slug', getNewsPostBySlug);
 router.delete('/:newspostID', authenticate, deleteNewsPostByID);

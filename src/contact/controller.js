@@ -6,10 +6,9 @@ const createContact = async (req,res,next) => {
         const name = req.body.name;
         const email = req.body.email;
         const phone = req.body.phone;
-        const company = req.body.company;
         const message = req.body.message;
 
-        const newContact = new Contact({name, email, phone, company, message});
+        const newContact = new Contact({name, email, phone, message});
         await newContact.save();
         res.json({message: 'Contact successfully created!'});
     }
@@ -29,9 +28,8 @@ const updateContactByID = async (req, res, next) => {
         const name = req.body.name;
         const email = req.body.email;
         const phone = req.body.phone;
-        const company = req.body.company;
         const message = req.body.message;
-        const contact = {_id, name, email, phone, company, message};
+        const contact = {_id, name, email, phone, message};
         const isContact = await Contact.findOne({_id: ObjectID(contact._id)});
         if(!isContact){
             throw 'Contact not found!';
