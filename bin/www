@@ -7,7 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('proto-website-api:server');
 var http = require('http');
-
+require('../utils/db');
 /**
  * Get port from environment and store in Express.
  */
