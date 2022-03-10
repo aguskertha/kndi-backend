@@ -8,6 +8,26 @@ const createNewsPostValidation = async (req, res, next) => {
             errors.push('Contents required!');
         }
     }
+    else{
+        contents.forEach(content => {
+            if(content.title){
+                if(content.title == ''){
+                    errors.push('Content title required!');
+                }
+            }
+            else{
+                errors.push('Content title required!');
+            }
+            if(content.languageCode){
+                if(content.languageCode == ''){
+                    errors.push('Content languageCode required!');
+                }
+            }
+            else{
+                errors.push('Content languageCode required!');
+            }
+        });
+    }
     
     if (errors.length == 0) {
         next();
@@ -27,9 +47,26 @@ const updateNewsPostByIDValidation = async (req, res, next) => {
         if(contents.length == 0){
             errors.push('Contents required!');
         }
-    }
-    if(publishDate !== '-'){
-        errors.push('Publish Date cannot changed manually!');
+        else{
+            contents.forEach(content => {
+                if(content.title){
+                    if(content.title == ''){
+                        errors.push('Content title required!');
+                    }
+                }
+                else{
+                    errors.push('Content title required!');
+                }
+                if(content.languageCode){
+                    if(content.languageCode == ''){
+                        errors.push('Content languageCode required!');
+                    }
+                }
+                else{
+                    errors.push('Content languageCode required!');
+                }
+            });
+        }
     }
 
     if (errors.length == 0) {

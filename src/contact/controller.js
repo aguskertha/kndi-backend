@@ -18,7 +18,7 @@ const createContact = async (req,res,next) => {
 }
 
 const getContacts = async (req,res,next) => {
-    const contacts = await Contact.find();
+    const contacts = await Contact.find().sort({'createdAt': -1});
     res.json(contacts);
 }
 

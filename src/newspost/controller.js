@@ -31,9 +31,9 @@ const createNewsPost = async (req, res, next) => {
 
 const getNewsPosts = async (req, res, next) => {
     try{
-        let newsposts = await NewsPost.find();
+        let newsposts = await NewsPost.find().sort({'createdAt': -1});
         if(req.query.publish){
-            newsposts = await NewsPost.find({publish: req.query.publish});
+            newsposts = await NewsPost.find({publish: req.query.publish}).sort({'createdAt': -1});
         }
         res.json(newsposts);
     }
@@ -225,9 +225,6 @@ const updateNewsPostByID = async (req, res, next) => {
         if(!isNewspost){
             throw 'News not found!';
         }
-        if(newspost.slug !== isNewspost.slug){
-            throw 'Slug cannot changed manually!';
-        }
         let newSlug = isNewspost.slug;
         newspost.contents.forEach(content => {
             if(content.languageCode == 'en'){
@@ -257,7 +254,7 @@ const getLatestNewsPosts = async (req, res, next) => {
         const sumNewsposts = await NewsPost.countDocuments();
         let latestNewspost = await NewsPost.find().sort({'updatedAt': -1}).limit(3);
         if(req.query.publish && req.query.limit){
-            latestNewspost = await NewsPost.find({publish: req.query.publish}).sort({'updatedAt': -1}).limit(Number(req.query.limit));
+            latestNewspost = await NewsPost.find({publish: req.query.publish}).sort({'createdAt': -1}).limit(Number(req.query.limit));
         }
         const data = {
             sumNewsposts,
