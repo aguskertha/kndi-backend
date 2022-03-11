@@ -252,7 +252,7 @@ const updateNewsPostByID = async (req, res, next) => {
 const getLatestNewsPosts = async (req, res, next) => {
     try{
         const sumNewsposts = await NewsPost.countDocuments();
-        let latestNewspost = await NewsPost.find().sort({'updatedAt': -1}).limit(3);
+        let latestNewspost = await NewsPost.find().sort({'createdAt': -1}).limit(3);
         if(req.query.publish && req.query.limit){
             latestNewspost = await NewsPost.find({publish: req.query.publish}).sort({'createdAt': -1}).limit(Number(req.query.limit));
         }
